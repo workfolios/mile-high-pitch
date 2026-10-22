@@ -1,0 +1,55 @@
+name: Deploy approved archive to Pages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-pages-release
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - name: Deterministic installation
+        run: npm ci
+      - name: TypeScript verification
+        run: npm run lint
+      - name: Security audit
+        run: npm audit --audit-level=high
+      - name: Production build for project subpath
+        run: npm run build -- --base=/mile-high-pitch/
+      - name: Verify artifact entry and base paths
+        run: |
+          test -f dist/index.html
+          test -d dist/assets
+          grep -q '/mile-high-pitch/assets/' dist/index.html
+          touch dist/.nojekyll
+      - name: Configure Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+      - name: Upload validated site artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy validated artifact
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
