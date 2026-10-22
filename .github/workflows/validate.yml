@@ -1,0 +1,32 @@
+name: Validate static archive
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - name: Deterministic installation
+        run: npm ci
+      - name: TypeScript verification
+        run: npm run lint
+      - name: Security audit
+        run: npm audit --audit-level=high
+      - name: Build for GitHub Pages project subpath
+        run: npm run build -- --base=/mile-high-pitch/
+      - name: Verify Pages artifact base path
+        run: |
+          test -f dist/index.html
+          test -d dist/assets
+          grep -q '/mile-high-pitch/assets/' dist/index.html
