@@ -20,19 +20,28 @@ export function BehindMileHighPitch() {
 
   const handleSelect = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
     setActiveIndex(idx);
-    
+
+    // A portrait selection must reveal its corresponding dossier on small screens.
+    // Desktop keeps its approved in-place selection behavior.
+    if (window.innerWidth >= 1024) return;
+
     const container = scrollContainerRef.current;
     const button = e.currentTarget;
-    
-    if (container && window.innerWidth < 1024) {
-      const scrollLeft = button.offsetLeft - (container.clientWidth / 2) + (button.clientWidth / 2);
+    if (container) {
+      const centeredLeft = container.scrollLeft + button.getBoundingClientRect().left
+        - container.getBoundingClientRect().left - (container.clientWidth - button.clientWidth) / 2;
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      
-      container.scrollTo({
-        left: scrollLeft,
-        behavior: prefersReduced ? 'auto' : 'smooth'
-      });
+      container.scrollTo({ left: centeredLeft, behavior: prefersReduced ? 'auto' : 'smooth' });
     }
+
+    window.requestAnimationFrame(() => {
+      const dossier = dossierRef.current;
+      if (!dossier) return;
+      const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 72;
+      const top = window.scrollY + dossier.getBoundingClientRect().top - headerHeight - 16;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+      headingRef.current?.focus({ preventScroll: true });
+    });
   };
 
   const activePerson = behind.people[activeIndex];
@@ -62,14 +71,15 @@ export function BehindMileHighPitch() {
                 key={idx}
                 ref={(el) => { rosterButtonsRef.current[idx] = el; }}
                 aria-pressed={isActive}
+                aria-controls="behind-dossier"
                 onClick={(e) => handleSelect(idx, e)}
-                className="snap-start shrink-0 w-[55vw] md:w-[32vw] lg:w-auto flex flex-col text-left group focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-4 focus:ring-offset-archive-paper"
+                className="snap-start shrink-0 w-[48vw] max-w-[210px] md:w-[32vw] md:max-w-none lg:w-auto flex flex-col text-left group focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-4 focus:ring-offset-archive-paper"
               >
                 <div className={`w-full aspect-[3/4] mb-5 border-b-4 transition-all duration-300 ${isActive ? 'border-logo-blue' : 'border-transparent group-hover:border-surface-stone'}`}>
                   <ImageWithFallback 
                     src={person.image} 
                     alt={person.alt}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`}
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="flex flex-col">
@@ -88,6 +98,7 @@ export function BehindMileHighPitch() {
         {/* Active Profile Dossier */}
         <div 
           ref={dossierRef}
+          id="behind-dossier"
           className="mt-2 lg:mt-4 pt-10 lg:pt-12 border-t border-surface-stone flex flex-col"
         >
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 xl:gap-24 animate-in fade-in duration-500">
