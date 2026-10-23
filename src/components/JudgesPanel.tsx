@@ -19,7 +19,32 @@ export function JudgesPanel() {
   });
 
   const activeJudge = judgesPanel.judges[activeIndex];
-  
+
+  const handleSelect = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
+    setActiveIndex(idx);
+
+    // Reveal the newly selected biography instead of leaving it below the mobile rail.
+    if (window.innerWidth >= 1024) return;
+
+    const container = scrollContainerRef.current;
+    const button = e.currentTarget;
+    if (container) {
+      const centeredLeft = container.scrollLeft + button.getBoundingClientRect().left
+        - container.getBoundingClientRect().left - (container.clientWidth - button.clientWidth) / 2;
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      container.scrollTo({ left: centeredLeft, behavior: prefersReduced ? 'auto' : 'smooth' });
+    }
+
+    window.requestAnimationFrame(() => {
+      const dossier = dossierRef.current;
+      if (!dossier) return;
+      const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 72;
+      const top = window.scrollY + dossier.getBoundingClientRect().top - headerHeight - 16;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
+      headingRef.current?.focus({ preventScroll: true });
+    });
+  };
+
   return (
     <section id="judges" className="bg-surface-white py-16 md:py-20 lg:py-24 scroll-mt-20">
       <div className="w-full max-w-[1792px] mx-auto px-6 md:px-12 lg:px-16 xl:px-24 flex flex-col">
@@ -45,14 +70,15 @@ export function JudgesPanel() {
                   key={idx}
                   ref={(el) => { rosterButtonsRef.current[idx] = el; }}
                   aria-pressed={isActive}
-                  onClick={() => setActiveIndex(idx)}
-                  className={`snap-start shrink-0 w-[70vw] md:w-auto flex flex-col text-left group focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-4 focus:ring-offset-surface-white p-2 xl:p-0 transition-all`}
+                  aria-controls="judges-dossier"
+                  onClick={(e) => handleSelect(idx, e)}
+                  className={`snap-start shrink-0 w-[52vw] max-w-[220px] md:w-auto md:max-w-none flex flex-col text-left group focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-4 focus:ring-offset-surface-white p-2 xl:p-0 transition-all`}
                 >
                   <div className={`w-full aspect-square xl:aspect-[3/4] mb-4 xl:mb-5 border-b-4 transition-all duration-300 ${isActive ? 'border-logo-blue' : 'border-transparent group-hover:border-surface-stone'}`}>
                     <ImageWithFallback 
                        src={judge.image} 
                        alt={judge.alt}
-                       className={`w-full h-full object-cover transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`}
+                       className="w-full h-full object-cover"
                      />
                   </div>
                   <div className="flex flex-col">
@@ -66,7 +92,7 @@ export function JudgesPanel() {
           </div>
 
           {/* JUDGE DETAIL STAGE */}
-          <div ref={dossierRef} className="flex flex-col border-t border-b border-surface-stone py-10 lg:py-12">
+          <div ref={dossierRef} id="judges-dossier" className="flex flex-col border-t border-b border-surface-stone py-10 lg:py-12">
             <div key={activeIndex} className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 animate-in fade-in duration-300 w-full">
               
               <div className="lg:col-span-4 flex flex-col">
