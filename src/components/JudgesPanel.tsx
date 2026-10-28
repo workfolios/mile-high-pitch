@@ -2,6 +2,7 @@ import React from 'react';
 import { siteContent } from '../data/siteContent';
 import { ImageWithFallback } from './ImageWithFallback';
 import { DossierTraversal, useDossierTraversal } from './DossierTraversal';
+import { CompactRecordPicker } from './CompactRecordPicker';
 
 export function JudgesPanel() {
   const { judgesPanel } = siteContent;
@@ -20,30 +21,7 @@ export function JudgesPanel() {
 
   const activeJudge = judgesPanel.judges[activeIndex];
 
-  const handleSelect = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    setActiveIndex(idx);
-
-    // Reveal the newly selected biography instead of leaving it below the mobile rail.
-    if (window.innerWidth >= 1024) return;
-
-    const container = scrollContainerRef.current;
-    const button = e.currentTarget;
-    if (container) {
-      const centeredLeft = container.scrollLeft + button.getBoundingClientRect().left
-        - container.getBoundingClientRect().left - (container.clientWidth - button.clientWidth) / 2;
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      container.scrollTo({ left: centeredLeft, behavior: prefersReduced ? 'auto' : 'smooth' });
-    }
-
-    window.requestAnimationFrame(() => {
-      const dossier = dossierRef.current;
-      if (!dossier) return;
-      const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 72;
-      const top = window.scrollY + dossier.getBoundingClientRect().top - headerHeight - 16;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
-      headingRef.current?.focus({ preventScroll: true });
-    });
-  };
+  const handleSelect = (idx: number) => setActiveIndex(idx);
 
   return (
     <section id="judges" className="bg-surface-white py-16 md:py-20 lg:py-24 scroll-mt-20">
@@ -61,7 +39,7 @@ export function JudgesPanel() {
           {/* JURY BOARD (5 PORTRAITS) */}
           <div 
             ref={scrollContainerRef}
-            className="flex overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-5 gap-4 md:gap-6 mb-8 md:mb-10 lg:mb-12 pb-6 md:pb-0 hide-scrollbar"
+            className="hidden xl:grid xl:grid-cols-5 xl:gap-6 xl:mb-12"
           >
             {judgesPanel.judges.map((judge, idx) => {
               const isActive = activeIndex === idx;
@@ -71,7 +49,7 @@ export function JudgesPanel() {
                   ref={(el) => { rosterButtonsRef.current[idx] = el; }}
                   aria-pressed={isActive}
                   aria-controls="judges-dossier"
-                  onClick={(e) => handleSelect(idx, e)}
+                  onClick={() => handleSelect(idx)}
                   className={`snap-start shrink-0 w-[52vw] max-w-[220px] md:w-auto md:max-w-none flex flex-col text-left group focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-4 focus:ring-offset-surface-white p-2 xl:p-0 transition-all`}
                 >
                   <div className={`w-full aspect-square xl:aspect-[3/4] mb-4 xl:mb-5 border-b-4 transition-all duration-300 ${isActive ? 'border-logo-blue' : 'border-transparent group-hover:border-surface-stone'}`}>
@@ -92,10 +70,23 @@ export function JudgesPanel() {
           </div>
 
           {/* JUDGE DETAIL STAGE */}
-          <div ref={dossierRef} id="judges-dossier" className="flex flex-col border-t border-b border-surface-stone py-10 lg:py-12">
-            <div key={activeIndex} className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 animate-in fade-in duration-300 w-full">
+          <div ref={dossierRef} id="judges-dossier" className="flex flex-col xl:border-t border-b border-surface-stone pt-0 pb-10 xl:py-12">
+            <CompactRecordPicker
+              id="judge-record-picker"
+              label="Choose a judge"
+              records={judgesPanel.judges.map((judge) => judge.name)}
+              activeIndex={activeIndex}
+              dossierId="judges-dossier"
+              onSelect={handleSelect}
+              onPrevious={() => handleTraverse('prev')}
+              onNext={() => handleTraverse('next')}
+            />
+            <div key={activeIndex} className="flex flex-col gap-7 md:grid md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:gap-x-9 md:gap-y-5 xl:grid-cols-12 xl:gap-12 xl:gap-x-16 animate-in fade-in duration-300 w-full">
+              <div className="xl:hidden w-full max-w-[240px] md:max-w-none mx-auto md:mx-0 md:row-span-3">
+                <ImageWithFallback src={activeJudge.image} alt={activeJudge.alt} className="w-full aspect-[4/5] object-cover rounded-sm border-b-4 border-logo-blue" />
+              </div>
               
-              <div className="lg:col-span-4 flex flex-col">
+              <div className="md:col-start-2 xl:col-start-auto xl:col-span-4 flex flex-col">
                 <h3 
                   ref={headingRef}
                   tabIndex={-1}
@@ -103,18 +94,18 @@ export function JudgesPanel() {
                 >
                   {activeJudge.name}
                 </h3>
-                <p className="font-inter font-semibold text-[15px] md:text-[16px] text-logo-blue uppercase tracking-wider mb-8 lg:mb-0">
+                <p className="font-inter font-semibold text-[15px] md:text-[16px] text-logo-blue uppercase tracking-wider mb-3 xl:mb-0">
                   {activeJudge.role}
                 </p>
               </div>
 
-              <div className="lg:col-span-5 flex flex-col">
+              <div className="md:col-start-2 xl:col-start-auto xl:col-span-5 flex flex-col">
                 <p className="font-inter text-[16px] md:text-[17px] text-text-secondary leading-[1.7]">
                   {activeJudge.bio}
                 </p>
               </div>
 
-              <div className="lg:col-span-3 flex items-start lg:justify-end">
+              <div className="md:col-start-2 xl:col-start-auto xl:col-span-3 flex items-start xl:justify-end">
                 <a 
                   href={activeJudge.linkedin}
                   target="_blank"
