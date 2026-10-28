@@ -2,7 +2,7 @@ import React from 'react';
 import { siteContent } from '../data/siteContent';
 import { ImageWithFallback } from './ImageWithFallback';
 import { DossierTraversal, useDossierTraversal } from './DossierTraversal';
-import { CompactRecordPicker } from './CompactRecordPicker';
+import { SwipeRecordCarousel } from './SwipeRecordCarousel';
 
 export function BehindMileHighPitch() {
   const { behind } = siteContent;
@@ -78,16 +78,11 @@ export function BehindMileHighPitch() {
           id="behind-dossier"
           className="mt-0 pt-0 xl:mt-4 xl:pt-12 xl:border-t border-surface-stone flex flex-col"
         >
-          <CompactRecordPicker
-            id="contributor-record-picker"
-            label="Choose a contributor"
+          <SwipeRecordCarousel
             records={behind.people.map((person) => person.name)}
             activeIndex={activeIndex}
-            dossierId="behind-dossier"
             onSelect={handleSelect}
-            onPrevious={() => handleTraverse('prev')}
-            onNext={() => handleTraverse('next')}
-          />
+          >
           <div className="flex flex-col gap-7 md:grid md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:gap-x-9 md:gap-y-5 xl:flex xl:flex-row xl:gap-24 animate-in fade-in duration-500">
             <div className="xl:hidden w-full max-w-[240px] md:max-w-none mx-auto md:mx-0 md:row-span-2">
               <ImageWithFallback src={activePerson.image} alt={activePerson.alt} className="w-full aspect-[3/4] object-cover rounded-sm border-b-4 border-logo-blue" />
@@ -130,8 +125,11 @@ export function BehindMileHighPitch() {
             </div>
           </div>
 
-          {/* Restrained Local Traversal */}
+          </SwipeRecordCarousel>
+
+          {/* Preserve the original desktop-only dossier traversal. */}
           <DossierTraversal
+            className="hidden xl:flex"
             recordType="contributor"
             prevRecordName={activeIndex > 0 ? behind.people[activeIndex - 1].name : null}
             nextRecordName={activeIndex < behind.people.length - 1 ? behind.people[activeIndex + 1].name : null}
