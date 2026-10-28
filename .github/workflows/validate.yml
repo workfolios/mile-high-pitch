@@ -30,3 +30,5 @@ jobs:
           test -f dist/index.html
           test -d dist/assets
           grep -q '/mile-high-pitch/assets/' dist/index.html
+      - name: Validate search-facing build artifact
+        run: node scripts/verify-seo-contract.mjs
