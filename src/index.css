@@ -41,3 +41,22 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Tablet/phone: a restrained response when a full record changes.
+   Desktop galleries are intentionally unaffected. */
+@keyframes record-arrive-next {
+  from { opacity: 0.78; transform: translate3d(12px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes record-arrive-previous {
+  from { opacity: 0.78; transform: translate3d(-12px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@media (max-width: 1279px) and (prefers-reduced-motion: no-preference) {
+  .record-carousel-enter[data-swipe-direction="next"] {
+    animation: record-arrive-next 220ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+  }
+  .record-carousel-enter[data-swipe-direction="previous"] {
+    animation: record-arrive-previous 220ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+  }
+}
