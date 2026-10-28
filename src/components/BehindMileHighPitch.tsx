@@ -2,6 +2,7 @@ import React from 'react';
 import { siteContent } from '../data/siteContent';
 import { ImageWithFallback } from './ImageWithFallback';
 import { DossierTraversal, useDossierTraversal } from './DossierTraversal';
+import { CompactRecordPicker } from './CompactRecordPicker';
 
 export function BehindMileHighPitch() {
   const { behind } = siteContent;
@@ -18,31 +19,7 @@ export function BehindMileHighPitch() {
     scrollBreakpoint: 1024,
   });
 
-  const handleSelect = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    setActiveIndex(idx);
-
-    // A portrait selection must reveal its corresponding dossier on small screens.
-    // Desktop keeps its approved in-place selection behavior.
-    if (window.innerWidth >= 1024) return;
-
-    const container = scrollContainerRef.current;
-    const button = e.currentTarget;
-    if (container) {
-      const centeredLeft = container.scrollLeft + button.getBoundingClientRect().left
-        - container.getBoundingClientRect().left - (container.clientWidth - button.clientWidth) / 2;
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      container.scrollTo({ left: centeredLeft, behavior: prefersReduced ? 'auto' : 'smooth' });
-    }
-
-    window.requestAnimationFrame(() => {
-      const dossier = dossierRef.current;
-      if (!dossier) return;
-      const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 72;
-      const top = window.scrollY + dossier.getBoundingClientRect().top - headerHeight - 16;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'auto' });
-      headingRef.current?.focus({ preventScroll: true });
-    });
-  };
+  const handleSelect = (idx: number) => setActiveIndex(idx);
 
   const activePerson = behind.people[activeIndex];
 
@@ -62,7 +39,7 @@ export function BehindMileHighPitch() {
         {/* Credits Board */}
         <div 
           ref={scrollContainerRef}
-          className="flex lg:grid lg:grid-cols-4 xl:grid-cols-7 gap-4 md:gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-8 -mx-6 px-6 md:-mx-12 md:px-12 lg:mx-0 lg:px-0"
+          className="hidden xl:grid xl:grid-cols-7 gap-6 pb-8"
         >
           {behind.people.map((person, idx) => {
             const isActive = activeIndex === idx;
@@ -72,7 +49,7 @@ export function BehindMileHighPitch() {
                 ref={(el) => { rosterButtonsRef.current[idx] = el; }}
                 aria-pressed={isActive}
                 aria-controls="behind-dossier"
-                onClick={(e) => handleSelect(idx, e)}
+                onClick={() => handleSelect(idx)}
                 className="snap-start shrink-0 w-[48vw] max-w-[210px] md:w-[32vw] md:max-w-none lg:w-auto flex flex-col text-left group focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-4 focus:ring-offset-archive-paper"
               >
                 <div className={`w-full aspect-[3/4] mb-5 border-b-4 transition-all duration-300 ${isActive ? 'border-logo-blue' : 'border-transparent group-hover:border-surface-stone'}`}>
@@ -99,11 +76,24 @@ export function BehindMileHighPitch() {
         <div 
           ref={dossierRef}
           id="behind-dossier"
-          className="mt-2 lg:mt-4 pt-10 lg:pt-12 border-t border-surface-stone flex flex-col"
+          className="mt-0 pt-0 xl:mt-4 xl:pt-12 xl:border-t border-surface-stone flex flex-col"
         >
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 xl:gap-24 animate-in fade-in duration-500">
+          <CompactRecordPicker
+            id="contributor-record-picker"
+            label="Choose a contributor"
+            records={behind.people.map((person) => person.name)}
+            activeIndex={activeIndex}
+            dossierId="behind-dossier"
+            onSelect={handleSelect}
+            onPrevious={() => handleTraverse('prev')}
+            onNext={() => handleTraverse('next')}
+          />
+          <div className="flex flex-col gap-7 md:grid md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:gap-x-9 md:gap-y-5 xl:flex xl:flex-row xl:gap-24 animate-in fade-in duration-500">
+            <div className="xl:hidden w-full max-w-[240px] md:max-w-none mx-auto md:mx-0 md:row-span-2">
+              <ImageWithFallback src={activePerson.image} alt={activePerson.alt} className="w-full aspect-[3/4] object-cover rounded-sm border-b-4 border-logo-blue" />
+            </div>
             {/* Left: Identity/Role */}
-            <div className="w-full lg:w-4/12 flex flex-col">
+            <div className="w-full md:col-start-2 xl:w-4/12 flex flex-col">
               <h3 
                 ref={headingRef}
                 tabIndex={-1}
@@ -111,7 +101,7 @@ export function BehindMileHighPitch() {
               >
                 {activePerson.name}
               </h3>
-              <p className="font-inter font-semibold text-[15px] md:text-[16px] text-logo-blue uppercase tracking-wider mb-8">
+              <p className="font-inter font-semibold text-[15px] md:text-[16px] text-logo-blue uppercase tracking-wider mb-4 xl:mb-8">
                 {activePerson.role}
               </p>
               
@@ -130,7 +120,7 @@ export function BehindMileHighPitch() {
             </div>
             
             {/* Right: Bio */}
-            <div className="w-full lg:w-8/12 flex flex-col lg:border-l lg:border-surface-stone lg:pl-16 xl:pl-24">
+            <div className="w-full md:col-start-2 xl:w-8/12 flex flex-col xl:border-l xl:border-surface-stone xl:pl-24">
               <div className="font-inter font-semibold text-[13px] md:text-[14px] text-text-secondary uppercase tracking-[0.1em] mb-6">
                 Biography
               </div>
