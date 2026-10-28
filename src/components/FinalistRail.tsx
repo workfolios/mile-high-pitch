@@ -2,6 +2,7 @@ import React from 'react';
 import { ImageWithFallback } from './ImageWithFallback';
 import { assets } from '../data/siteAssets';
 import { DossierTraversal, useDossierTraversal } from './DossierTraversal';
+import { CompactRecordPicker } from './CompactRecordPicker';
 
 const finalists = [
   {
@@ -75,22 +76,7 @@ export function FinalistRail() {
     scrollBreakpoint: 1280,
   });
 
-  const handleSelect = (idx: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    setActiveIndex(idx);
-    
-    const container = scrollContainerRef.current;
-    const button = e.currentTarget;
-    
-    if (container && window.innerWidth < 1280) {
-      const scrollLeft = button.offsetLeft - (container.clientWidth / 2) + (button.clientWidth / 2);
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      
-      container.scrollTo({
-        left: scrollLeft,
-        behavior: prefersReduced ? 'auto' : 'smooth'
-      });
-    }
-  };
+  const handleSelect = (idx: number) => setActiveIndex(idx);
 
   const activeCompany = finalists[activeIndex];
 
@@ -110,7 +96,7 @@ export function FinalistRail() {
         {/* Cohort Board */}
         <div 
           ref={scrollContainerRef}
-          className="flex xl:grid xl:grid-cols-5 gap-6 xl:gap-10 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-8 -mx-6 px-6 md:-mx-12 md:px-12 lg:-mx-16 lg:px-16 xl:mx-0 xl:px-0"
+          className="hidden xl:grid xl:grid-cols-5 gap-10 pb-8"
         >
           {finalists.map((company, idx) => {
             const isActive = idx === activeIndex;
@@ -119,7 +105,7 @@ export function FinalistRail() {
                 key={idx}
                 ref={(el) => { rosterButtonsRef.current[idx] = el; }}
                 aria-pressed={isActive}
-                onClick={(e) => handleSelect(idx, e)}
+                onClick={() => handleSelect(idx)}
                 className={`group flex flex-col text-left border-t-2 pt-6 transition-all min-w-[260px] md:min-w-[300px] xl:min-w-0 snap-start focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-8 focus:ring-offset-white ${
                   isActive 
                     ? 'border-logo-blue' 
@@ -158,8 +144,22 @@ export function FinalistRail() {
         {/* Active Lineage Stage */}
         <div 
           ref={dossierRef}
-          className="mt-4 pt-10 xl:pt-12 border-t border-surface-stone flex flex-col"
+          id="finalists-dossier"
+          className="mt-0 pt-0 xl:mt-4 xl:pt-12 xl:border-t border-surface-stone flex flex-col"
         >
+          <CompactRecordPicker
+            id="finalist-record-picker"
+            label="Choose a finalist"
+            records={finalists.map((company) => company.historicalName)}
+            activeIndex={activeIndex}
+            dossierId="finalists-dossier"
+            onSelect={handleSelect}
+            onPrevious={() => handleTraverse('prev')}
+            onNext={() => handleTraverse('next')}
+          />
+          <div className="xl:hidden flex items-center justify-center min-h-[112px] mb-7 px-5 py-4 border border-surface-stone rounded-sm bg-white">
+            <ImageWithFallback src={activeCompany.currentLogo} alt={activeCompany.currentAlt} className="w-full max-w-[290px] h-[88px] object-contain mix-blend-multiply" />
+          </div>
           <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 xl:gap-8 animate-in fade-in duration-500">
             {/* Left: 2019 Record */}
             <div className="w-full xl:w-[60%] flex flex-col pr-0 xl:pr-8">
