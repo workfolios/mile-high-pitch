@@ -2,7 +2,7 @@ import React from 'react';
 import { ImageWithFallback } from './ImageWithFallback';
 import { assets } from '../data/siteAssets';
 import { DossierTraversal, useDossierTraversal } from './DossierTraversal';
-import { CompactRecordPicker } from './CompactRecordPicker';
+import { SwipeRecordCarousel } from './SwipeRecordCarousel';
 
 const finalists = [
   {
@@ -147,16 +147,11 @@ export function FinalistRail() {
           id="finalists-dossier"
           className="mt-0 pt-0 xl:mt-4 xl:pt-12 xl:border-t border-surface-stone flex flex-col"
         >
-          <CompactRecordPicker
-            id="finalist-record-picker"
-            label="Choose a finalist"
+          <SwipeRecordCarousel
             records={finalists.map((company) => company.historicalName)}
             activeIndex={activeIndex}
-            dossierId="finalists-dossier"
             onSelect={handleSelect}
-            onPrevious={() => handleTraverse('prev')}
-            onNext={() => handleTraverse('next')}
-          />
+          >
           <div className="xl:hidden flex items-center justify-center min-h-[112px] mb-7 px-5 py-4 border border-surface-stone rounded-sm bg-white">
             <ImageWithFallback src={activeCompany.currentLogo} alt={activeCompany.currentAlt} className="w-full max-w-[290px] h-[88px] object-contain mix-blend-multiply" />
           </div>
@@ -220,8 +215,11 @@ export function FinalistRail() {
             </div>
           </div>
 
-          {/* Restrained Local Traversal */}
+          </SwipeRecordCarousel>
+
+          {/* Desktop dossier traversal stays intact; the compact carousel owns phone/tablet navigation. */}
           <DossierTraversal
+            className="hidden xl:flex"
             recordType="finalist"
             prevRecordName={activeIndex > 0 ? finalists[activeIndex - 1].historicalName : null}
             nextRecordName={activeIndex < finalists.length - 1 ? finalists[activeIndex + 1].historicalName : null}
