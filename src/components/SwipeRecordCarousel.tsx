@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface SwipeRecordCarouselProps {
   records: string[];
@@ -19,8 +19,15 @@ export function SwipeRecordCarousel({
   children,
 }: SwipeRecordCarouselProps) {
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const [direction, setDirection] = useState<'next' | 'previous'>('next');
   const isFirst = activeIndex === 0;
   const isLast = activeIndex === records.length - 1;
+
+  const goTo = (index: number) => {
+    if (index < 0 || index >= records.length || index === activeIndex) return;
+    setDirection(index > activeIndex ? 'next' : 'previous');
+    onSelect(index);
+  };
 
   const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     if (window.innerWidth >= 1280 || event.touches.length !== 1) {
@@ -47,12 +54,12 @@ export function SwipeRecordCarousel({
     // Horizontal intent only: vertical page scrolling must remain native.
     if (Math.abs(dx) < 55 || Math.abs(dx) <= Math.abs(dy) * 1.4) return;
     const next = dx < 0 ? activeIndex + 1 : activeIndex - 1;
-    if (next >= 0 && next < records.length) onSelect(next);
+    goTo(next);
   };
 
   return (
     <>
-      <div className="xl:hidden mb-6 md:mb-8 flex items-center justify-between gap-4" aria-label="Record carousel navigation">
+      <div className="xl:hidden mb-6 md:mb-8 flex items-center justify-between gap-4" role="group" aria-label="Record carousel navigation">
         <div className="min-w-0 flex flex-col gap-2.5">
           <div className="flex items-baseline gap-2" aria-hidden="true">
             <span className="font-sora text-[16px] font-bold tabular-nums text-deep-ink">
@@ -78,7 +85,7 @@ export function SwipeRecordCarousel({
           <button
             type="button"
             disabled={isFirst}
-            onClick={() => onSelect(activeIndex - 1)}
+            onClick={() => goTo(activeIndex - 1)}
             aria-label={isFirst ? 'No previous record' : `Previous: ${records[activeIndex - 1]}`}
             className="flex size-11 items-center justify-center rounded-full border border-surface-stone bg-white text-deep-ink transition-colors hover:border-logo-blue hover:text-logo-blue disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue"
           >
@@ -87,7 +94,7 @@ export function SwipeRecordCarousel({
           <button
             type="button"
             disabled={isLast}
-            onClick={() => onSelect(activeIndex + 1)}
+            onClick={() => goTo(activeIndex + 1)}
             aria-label={isLast ? 'No next record' : `Next: ${records[activeIndex + 1]}`}
             className="flex size-11 items-center justify-center rounded-full border border-surface-stone bg-white text-deep-ink transition-colors hover:border-logo-blue hover:text-logo-blue disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue"
           >
@@ -96,7 +103,9 @@ export function SwipeRecordCarousel({
         </div>
       </div>
       <div
-        className="w-full min-w-0 touch-pan-y"
+        key={activeIndex}
+        data-swipe-direction={direction}
+        className="w-full min-w-0 touch-pan-y record-carousel-enter"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         onTouchCancel={() => { touchStart.current = null; }}
