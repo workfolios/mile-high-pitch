@@ -2,7 +2,7 @@ import React from 'react';
 import { siteContent } from '../data/siteContent';
 import { ImageWithFallback } from './ImageWithFallback';
 import { DossierTraversal, useDossierTraversal } from './DossierTraversal';
-import { CompactRecordPicker } from './CompactRecordPicker';
+import { SwipeRecordCarousel } from './SwipeRecordCarousel';
 
 export function JudgesPanel() {
   const { judgesPanel } = siteContent;
@@ -71,16 +71,11 @@ export function JudgesPanel() {
 
           {/* JUDGE DETAIL STAGE */}
           <div ref={dossierRef} id="judges-dossier" className="flex flex-col xl:border-t border-b border-surface-stone pt-0 pb-10 xl:py-12">
-            <CompactRecordPicker
-              id="judge-record-picker"
-              label="Choose a judge"
+            <SwipeRecordCarousel
               records={judgesPanel.judges.map((judge) => judge.name)}
               activeIndex={activeIndex}
-              dossierId="judges-dossier"
               onSelect={handleSelect}
-              onPrevious={() => handleTraverse('prev')}
-              onNext={() => handleTraverse('next')}
-            />
+            >
             <div key={activeIndex} className="flex flex-col gap-7 md:grid md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:gap-x-9 md:gap-y-5 xl:grid-cols-12 xl:gap-12 xl:gap-x-16 animate-in fade-in duration-300 w-full">
               <div className="xl:hidden w-full max-w-[240px] md:max-w-none mx-auto md:mx-0 md:row-span-3">
                 <ImageWithFallback src={activeJudge.image} alt={activeJudge.alt} className="w-full aspect-[4/5] object-cover rounded-sm border-b-4 border-logo-blue" />
@@ -122,8 +117,11 @@ export function JudgesPanel() {
               
             </div>
 
-            {/* Restrained Local Traversal */}
+            </SwipeRecordCarousel>
+
+            {/* Desktop keeps the approved dossier Previous/Next controls. */}
             <DossierTraversal
+              className="hidden xl:flex"
               recordType="judge"
               prevRecordName={activeIndex > 0 ? judgesPanel.judges[activeIndex - 1].name : null}
               nextRecordName={activeIndex < judgesPanel.judges.length - 1 ? judgesPanel.judges[activeIndex + 1].name : null}
