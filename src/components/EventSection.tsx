@@ -13,9 +13,12 @@ export function EventSection() {
         {/* Program Notes Field */}
         <div className="flex flex-col max-w-5xl">
           {/* Introductory Deck */}
-          <p className="font-inter text-[20px] md:text-[24px] text-deep-ink leading-[1.6] font-light mb-10 lg:mb-12">
+          <p className="font-inter text-[20px] md:text-[24px] text-deep-ink leading-[1.6] font-light mb-6 md:mb-7 xl:mb-12">
             Mile High Pitch 2019 was a founder-facing startup competition presented by WorkAbility CoWorking and The Bank of Denver. The live event was created to give five selected startup companies visibility, a structured presentation platform, access to an experienced judging panel, and the opportunity to compete for a meaningful prize package.
           </p>
+
+          {/* Tablet/mobile editorial transition from the lead paragraph to supporting copy. */}
+          <div aria-hidden="true" className="xl:hidden h-px w-12 bg-logo-blue/70 mb-6" />
 
           {/* Two-Column Reading Field */}
           <div className="lg:columns-2 gap-10 xl:gap-12 font-inter text-[16px] md:text-[17px] text-text-secondary leading-[1.7] space-y-5 lg:space-y-0 text-justify-none">
