@@ -21,11 +21,11 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-archive-navy text-white px-6 py-12 md:py-14 lg:py-10 border-t-8 border-logo-blue">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-start justify-between gap-10 lg:gap-8 border-b border-white/15 pb-8 lg:pb-5 mb-4 lg:mb-2">
+    <footer className="bg-archive-navy text-white px-6 py-12 md:py-14 xl:py-10 border-t-8 border-logo-blue">
+      <div className="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-start justify-between gap-8 xl:gap-8 border-b border-white/15 pb-8 lg:pb-5 mb-4 lg:mb-2">
         
         {/* Left Zone: Historical Identity & Stewardship */}
-        <div className="flex flex-col w-full md:w-5/12">
+        <div className="flex flex-col w-full border-b border-white/15 pb-7 md:pb-8 xl:w-5/12 xl:border-b-0 xl:pb-0">
           <ImageWithFallback 
             src={getAssetPath('assets/mhp2019-logo-master.svg')}
             alt="Mile High Pitch 2019"
@@ -59,8 +59,8 @@ export function Footer() {
         </div>
 
         {/* Right Zone: Colophon & Navigation */}
-        <div className="w-full md:w-7/12 flex flex-col md:flex-row gap-8 lg:gap-10 xl:gap-12 md:justify-end">
-          <div className="flex flex-col border-l border-white/20 pl-6 space-y-3 lg:space-y-2">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:w-7/12 xl:flex xl:flex-row gap-8 lg:gap-10 xl:gap-12 xl:justify-end">
+          <div className="flex flex-col space-y-3 lg:space-y-2 xl:border-l xl:border-white/20 xl:pl-6">
             <h3 className="font-sora font-semibold text-[14px] text-white/90 tracking-widest uppercase mb-2 lg:mb-1">Event Colophon</h3>
             <p className="font-inter text-[15px] md:text-[16px] text-white/60 leading-relaxed">
               November 21, 2019<br />
@@ -72,7 +72,7 @@ export function Footer() {
             </p>
           </div>
           
-          <nav className="flex flex-col gap-2 lg:gap-1.5" aria-label="Footer navigation">
+          <nav className="flex flex-col gap-2 lg:gap-1.5 border-t border-white/15 pt-7 md:border-t-0 md:pt-0" aria-label="Footer navigation">
             <h3 className="font-sora font-semibold text-[14px] text-white/90 tracking-widest uppercase mb-2 lg:mb-1">Archive Index</h3>
             <a href="#competition" className="font-sora text-[15px] md:text-[16px] text-white/60 hover:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-logo-blue rounded-sm w-max py-0.5">The 2019 Competition</a>
             <a href="#finalists" className="font-sora text-[15px] md:text-[16px] text-white/60 hover:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-logo-blue rounded-sm w-max py-0.5">2019 Finalists</a>
