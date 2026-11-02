@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const canonical = 'https://workfolios.github.io/mile-high-pitch/';
-const socialImage = canonical + 'assets/mhp2019-event-preview.jpg';
+const socialImage = canonical + 'assets/mhp2019-social-preview-1200x630.jpg';
 const pageTitle = 'Mile High Pitch 2019 | Denver Startup Pitch Competition';
 const preview = 'assets/mile-high-pitch-2019-required-assets/mile-high-pitch-winner-boogaloo-beds-2019.jpg';
 
@@ -21,9 +21,12 @@ verifyTag('Self-referencing canonical', /<link rel="canonical" href="https:\/\/w
 verifyTag('Intentional public indexing directive', /<meta name="robots" content="index,follow,max-image-preview:large"\s*\/>/);
 verifyTag('OG website identity', /<meta property="og:type" content="website"\s*\/>/);
 verifyTag('OG canonical URL', /<meta property="og:url" content="https:\/\/workfolios\.github\.io\/mile-high-pitch\/"\s*\/>/);
-verifyTag('OG preview image', /<meta property="og:image" content="https:\/\/workfolios\.github\.io\/mile-high-pitch\/assets\/mhp2019-event-preview\.jpg"\s*\/>/);
+verifyTag('OG preview image', /<meta property="og:image" content="https:\/\/workfolios\.github\.io\/mile-high-pitch\/assets\/mhp2019-social-preview-1200x630\.jpg"\s*\/>/);
+verifyTag('OG image dimensions', /<meta property="og:image:width" content="1200"\s*\/>[\s\S]*?<meta property="og:image:height" content="630"\s*\/>/);
+verifyTag('OG image alternative text', /<meta property="og:image:alt" content="Mile High Pitch 2019 historical event identity and Denver startup pitch competition"\s*\/>/);
+assert.ok(html.includes(socialImage), 'Approved branded social preview URL must be present');
 verifyTag('Twitter summary card', /<meta name="twitter:card" content="summary_large_image"\s*\/>/);
-verifyTag('Twitter preview asset', /<meta name="twitter:image" content="https:\/\/workfolios\.github\.io\/mile-high-pitch\/assets\/mhp2019-event-preview\.jpg"\s*\/>/);
+verifyTag('Twitter preview asset', /<meta name="twitter:image" content="https:\/\/workfolios\.github\.io\/mile-high-pitch\/assets\/mhp2019-social-preview-1200x630\.jpg"\s*\/>/);
 verifyTag('Pages JS/CSS project subpath', /\/mile-high-pitch\/assets\//);
 assert.ok(!/<meta[^>]+content="noindex/i.test(html), 'Unexpected noindex');
 
@@ -53,6 +56,14 @@ const sourceImageBytes = readFileSync(preview);
 const distImageBytes = readFileSync('dist/assets/mhp2019-event-preview.jpg');
 assert.deepEqual(distImageBytes, sourceImageBytes, 'Social preview must reuse exact approved photo bytes');
 console.log('PASS: original approved event photograph copied unchanged');
+
+const brandedSourceBytes = readFileSync('public/assets/mhp2019-social-preview-1200x630.jpg');
+const brandedDistBytes = readFileSync('dist/assets/mhp2019-social-preview-1200x630.jpg');
+assert.ok(brandedSourceBytes.length > 10000, 'Branded preview must be a non-empty image');
+assert.equal(brandedSourceBytes[0], 0xff, 'Branded preview must begin with JPEG magic bytes');
+assert.equal(brandedSourceBytes[1], 0xd8, 'Branded preview must begin with JPEG magic bytes');
+assert.deepEqual(brandedDistBytes, brandedSourceBytes, 'Branded social preview must be copied unchanged');
+console.log('PASS: approved branded social preview copied unchanged');
 
 assert.ok(!htmlSource.includes('http://localhost'), 'No development canonical');
 assert.equal((html.match(/rel="canonical"/g) ?? []).length, 1);
