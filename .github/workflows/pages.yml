@@ -72,7 +72,7 @@ jobs:
             if curl --fail --silent --show-error --location --max-time 15 "$base" --output "$html" &&
                grep -Fq 'rel="canonical" href="https://workfolios.github.io/mile-high-pitch/"' "$html" &&
                grep -Fq 'application/ld+json' "$html" &&
-               grep -Fq 'assets/mhp2019-event-preview.jpg' "$html"; then
+               grep -Fq 'property="og:image" content="https://workfolios.github.io/mile-high-pitch/assets/mhp2019-social-preview-1200x630.jpg"' "$html"; then
               ok=true
               break
             fi
@@ -85,6 +85,8 @@ jobs:
           grep -Fq 'name="twitter:card" content="summary_large_image"' "$html"
           curl --fail --silent --show-error --location --max-time 15 "${base}sitemap.xml" --output "$RUNNER_TEMP/mhp-sitemap.xml"
           grep -Fq '<loc>https://workfolios.github.io/mile-high-pitch/</loc>' "$RUNNER_TEMP/mhp-sitemap.xml"
+          curl --fail --silent --show-error --location --max-time 15 "${base}assets/mhp2019-social-preview-1200x630.jpg" --output "$RUNNER_TEMP/mhp-social-branded.jpg"
+          echo "2d5db4de8742dec999bcb374d99b5414d093b357cb55d2d5b1d1587970bb3879  $RUNNER_TEMP/mhp-social-branded.jpg" | sha256sum --check
           curl --fail --silent --show-error --location --max-time 15 "${base}assets/mhp2019-event-preview.jpg" --output "$RUNNER_TEMP/mhp-social.jpg"
           echo "9c38c3ff2edca23d60a3702e884cffccb5463f716e95a14511ea300a9f4ec36c  $RUNNER_TEMP/mhp-social.jpg" | sha256sum --check
           echo "Public search contract verified: $base"
